@@ -1,4 +1,7 @@
 package lowleveldesign.CustomerIterator;
 
-public interface BasicIterator {
+public interface BasicIterator<T> {
+
+    boolean hasNext();
+    T next();
 }
