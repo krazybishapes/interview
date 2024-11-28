@@ -37,7 +37,7 @@ public class PlayerService {
         rows[row] +=dis;
         cols[col] += dis;
         if(row == col) diagonal +=dis;
-        if(row+col == 2) antidiagonal += dis;
+        if(row+col == n-1) antidiagonal += dis;
 
         if(Math.abs(rows[row])==n || Math.abs(cols[col])==n ||
         Math.abs(diagonal)==n | Math.abs(antidiagonal)==n){
