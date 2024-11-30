@@ -1,5 +1,6 @@
 package lowleveldesign.cricinfo.service;
 
+import lowleveldesign.cricinfo.Innings;
 import lowleveldesign.cricinfo.Match;
 
 import java.util.Map;
@@ -29,12 +30,17 @@ public class MatchServiceImpl implements MatchService{
     }
 
     @Override
-    public Match getMatchDetails(Match match) {
-        return null;
+    public Match getMatchDetails(Integer matchId) {
+        return matches.get(matchId);
     }
 
     @Override
     public void updateMatch(Match match) {
+        matches.put(match.getId(), match);
+    }
 
+    @Override
+    public void addInning(Integer matchId, Innings innings) {
+        matches.get(matchId).getInnings().add(innings);
     }
 }
