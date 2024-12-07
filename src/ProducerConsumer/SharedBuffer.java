@@ -11,8 +11,8 @@ class SharedBuffer {
     int capacity;
 
     ReentrantLock lock = new ReentrantLock();
-    Condition notFull = lock.newCondition();
-    Condition notEmpty = lock.newCondition();
+    Condition producer = lock.newCondition();
+    Condition consumer = lock.newCondition();
 
     public SharedBuffer(int capacity){
         this.capacity = capacity;
@@ -22,11 +22,11 @@ class SharedBuffer {
         lock.lock();
         try {
             if (queue.size() == capacity) {
-                notFull.await();
+                producer.await();
             }
             queue.add(item);
             System.out.println("Produced:" + item);
-            notEmpty.signal();
+            consumer.signal();
         }finally {
             lock.unlock();
         }
@@ -36,11 +36,11 @@ class SharedBuffer {
         lock.lock();
         try {
             if (queue.isEmpty()) {
-                notEmpty.await();
+                consumer.await();
             }
             int item = queue.poll();
             System.out.println("Consumed:" + item);
-            notFull.signal();
+            producer.signal();
             return item;
         }finally {
             lock.unlock();
