@@ -24,42 +24,16 @@ public class WebCrawler {
         queue.offer(startUrl);
         HTMLParser htmlParser = new DummyHTMLParser();
         ExecutorService executorService = Executors.newFixedThreadPool(10);
-        //ScheduledExecutorService rateLimiter = Executors.newSingleThreadScheduledExecutor();
+
 
         for (int i = 0; i < MAX_THREADS; i++) {
             executorService.submit(() -> {
-                while (true) {
-                    String url = queue.poll();
-                    if (url == null) {
-                        // Exit loop if queue is empty and no new tasks are pending
-                        if (resultUrls.size() == queue.size()) {
-                            break;
-                        } else {
-                            // Sleep briefly to allow other threads to populate the queue
-                            try {
-                                Thread.sleep(50);
-                            } catch (InterruptedException e) {
-                                Thread.currentThread().interrupt();
-                                break;
-                            }
-                        }
-                    } else {
-                        crawl(url,htmlParser, hostName);
-                    }
-                }
+               crawl(htmlParser,hostName);
             });
         }
 
         executorService.shutdown();
-        try {
-            if (!executorService.awaitTermination(60, TimeUnit.SECONDS)) {
-                executorService.shutdownNow();
-            }
-        } catch (InterruptedException e) {
-            executorService.shutdownNow();
-            Thread.currentThread().interrupt();
-        }
-        //rateLimiter.shutdown();
+
 
     }
 
@@ -72,53 +46,40 @@ public class WebCrawler {
         return split[2];
     }
 
-    /*private static void crawl(HTMLParser htmlParser, String hostName,ScheduledExecutorService rateLimiter){
 
-        while(!queue.isEmpty()){
-            String currentUrl = queue.poll();
-            if(currentUrl == null || resulturls.contains(currentUrl) || !hostName.equals(getHostName(currentUrl))){
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+
+    private static void crawl(HTMLParser htmlParser, String hostName) {
+        while(true){
+            String url = queue.poll();
+            if(url == null){
+
+                if(resultUrls.size() == queue.size()){
+                    break;
+                }else{
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        return;
+                    }
+                }
+
+
+            }else{
+                if (resultUrls.contains(url) || !hostName.equals(getHostName(url))) {
+                    return;
+                }
+
+                resultUrls.add(url);
+                List<String> urls = htmlParser.getUrls(url);
+                for (String newUrl : urls) {
+                    if (!resultUrls.contains(newUrl)) {
+                        queue.add(newUrl);
+                    }
                 }
             }
-
-            try {
-                ///rateLimiter.schedule(()->{
-
-                    resulturls.add(currentUrl);
-                    System.out.println(" Thread:" + Thread.currentThread().getName() +" Crawling: "+ currentUrl );
-                    List<String> urls = htmlParser.getUrls(currentUrl);
-                    for(String url:urls){
-                        if(url == null || resulturls.contains(url) || !hostName.equals(getHostName(url))){
-                            continue;
-                        }
-                        queue.offer(url);
-
-                    }
-
-
-               // },interval_in_ms,TimeUnit.MILLISECONDS).get();
-            } finally {
-
-            }
-
-
-        }*/
-
-    private static void crawl(String startUrl, HTMLParser htmlParser, String hostName) {
-        if (resultUrls.contains(startUrl) || !hostName.equals(getHostName(startUrl))) {
-            return;
         }
 
-        resultUrls.add(startUrl);
-        List<String> urls = htmlParser.getUrls(startUrl);
-        for (String url : urls) {
-            if (!resultUrls.contains(url)) {
-                queue.add(url);
-            }
-        }
     }
 
 
