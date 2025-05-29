@@ -27,7 +27,6 @@ public class ScheduledThreadPool implements CustomScheduledExecutorService {
     @Override
     public void schedule(Runnable command, long delay, TimeUnit unit) {
         Long executionTime = System.currentTimeMillis() + unit.toMillis(delay);
-        ScheduledTask scheduledTask = new ScheduledTask(command, executionTime);
         queue.add(new ScheduledTask(()->{
             command.run();
             schedule(command,delay,unit);
@@ -37,19 +36,19 @@ public class ScheduledThreadPool implements CustomScheduledExecutorService {
 
     @Override
     public void scheduleAtFixedRate(Runnable command, long initialDelay, long period, TimeUnit unit) {
-        long initialExecutionTime = System.currentTimeMillis() + sequencer.incrementAndGet() * unit.toMillis(initialDelay);
+        long initialExecutionTime = System.currentTimeMillis() +initialDelay+ sequencer.incrementAndGet() * unit.toMillis(period);
         queue.add(new ScheduledTask(() -> {
             command.run();
-            scheduleAtFixedRate(command, period, period, unit);
+            scheduleAtFixedRate(command, 0, period, unit);
         }, initialExecutionTime));
     }
 
     @Override
     public void scheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit) {
-        long initialExecutionTime = System.currentTimeMillis() + unit.toMillis(initialDelay);
+        long initialExecutionTime = System.currentTimeMillis() + initialDelay+ unit.toMillis(delay);
         queue.add(new ScheduledTask(() -> {
             command.run();
-            scheduleWithFixedDelay(command, delay, delay, unit);
+            scheduleWithFixedDelay(command, 0, delay, unit);
         }, initialExecutionTime));
     }
 }

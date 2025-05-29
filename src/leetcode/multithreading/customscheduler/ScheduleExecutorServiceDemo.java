@@ -10,7 +10,7 @@ public class ScheduleExecutorServiceDemo {
         CustomScheduledExecutorService customScheduledExecutorService = MyExecutors.newScheduledThreadPool(10);
 
         customScheduledExecutorService.schedule(()->
-            System.out.println("Task 1 executed at " + System.currentTimeMillis())
+            System.out.println("MyTask 1 executed at " + System.currentTimeMillis())
                     , 5000, TimeUnit.MILLISECONDS );
 
 
